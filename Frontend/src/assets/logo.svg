@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" width="200" height="60">
+  <rect width="200" height="60" fill="white"/>
+  <circle cx="30" cy="30" r="25" fill="#17A2B8"/>
+  <text x="30" y="26" text-anchor="middle" font-size="10" fill="white" font-family="serif">نور</text>
+  <path d="M15 35 Q30 28 45 35" stroke="white" stroke-width="2" fill="none"/>
+  <polygon points="30,10 33,18 41,18 35,23 37,31 30,26 23,31 25,23 19,18 27,18" fill="white" opacity="0.8"/>
+  <text x="110" y="25" text-anchor="middle" font-size="11" fill="#1a1a1a" font-family="Arial" font-weight="bold">Noor Premier</text>
+  <text x="110" y="40" text-anchor="middle" font-size="9" fill="#17A2B8" font-family="Arial">School</text>
+  <text x="110" y="52" text-anchor="middle" font-size="6" fill="#666" font-family="Arial">Excellence in Islamic Education</text>
+</svg>

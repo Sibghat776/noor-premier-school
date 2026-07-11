@@ -1,0 +1,6 @@
+aws_region    = "us-east-1"
+my_ip_cidr    = "YOUR_IP/32"
+ec2_public_key = "ssh-rsa AAAA... your-public-key"
+db_name       = "noor_school"
+db_username   = "admin"
+db_password   = "YourStrongPassword123!"
