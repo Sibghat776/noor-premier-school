@@ -11,73 +11,51 @@ jobs:
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           command_timeout: 15m
+          envs: EC2_HOST,MYSQL_HOST,MYSQL_PASSWORD,JWT_SECRET
           script: |
             set -e
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-
-            # Clone or pull repo
             if [ ! -d "/home/ec2-user/noor-school/.git" ]; then
               git clone https://github.com/Sibghat776/noor-premier-school /home/ec2-user/noor-school
             fi
             cd /home/ec2-user/noor-school
             git pull origin main
-
-            # Write Backend .env
-            cat > Backend/.env <<ENVEOF
-NODE_ENV=production
-PORT=5000
-FRONTEND_URL=http://${{ secrets.EC2_HOST }}
-MYSQL_HOST=${{ secrets.MYSQL_HOST }}
-MYSQL_PORT=3306
-MYSQL_USER=admin
-MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
-MYSQL_DATABASE=noor_school
-JWT_SECRET=${{ secrets.JWT_SECRET }}
-JWT_EXPIRY=7d
-ENVEOF
-
-            # Backend
+            printf "NODE_ENV=production\nPORT=5000\nFRONTEND_URL=http://${EC2_HOST}\nMYSQL_HOST=${MYSQL_HOST}\nMYSQL_PORT=3306\nMYSQL_USER=admin\nMYSQL_PASSWORD=${MYSQL_PASSWORD}\nMYSQL_DATABASE=noor_school\nJWT_SECRET=${JWT_SECRET}\nJWT_EXPIRY=7d\n" > Backend/.env
             cd Backend
             npm ci --omit=dev
             pm2 startOrRestart ecosystem.config.js --env production || pm2 start index.js --name noor-backend
             pm2 save
             cd ..
-
-            # Frontend — build ON EC2
             cd Frontend
             npm ci
             npm run build
             sudo cp -r dist/* /var/www/html/
             cd ..
-
-            # Nginx
             sudo cp infra/nginx/noor-premier.conf /etc/nginx/conf.d/noor-premier.conf
             sudo nginx -t
             sudo systemctl reload nginx
-
             echo "Deployment complete at $(date)"
 
-      - name: Smoke test — backend health
+      - name: Smoke test backend
         run: |
           sleep 15
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.EC2_HOST }}/api/health)
-          if [ "$STATUS" != "200" ]; then
-            echo "FAIL: /api/health returned HTTP $STATUS"
-            exit 1
-          fi
-          echo "PASS: /api/health returned 200"
+          if [ "$STATUS" != "200" ]; then echo "FAIL: $STATUS"; exit 1; fi
+          echo "PASS: backend healthy"
 
-      - name: Smoke test — frontend served
+      - name: Smoke test frontend
         run: |
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.EC2_HOST }}/)
-          if [ "$STATUS" != "200" ]; then
-            echo "FAIL: Frontend root returned HTTP $STATUS"
-            exit 1
-          fi
-          echo "PASS: Frontend root returned 200"
+          if [ "$STATUS" != "200" ]; then echo "FAIL: $STATUS"; exit 1; fi
+          echo "PASS: frontend serving"
