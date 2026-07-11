@@ -37,6 +37,7 @@ jobs:
             pm2 startOrRestart ecosystem.config.js --env production || pm2 start index.js --name noor-backend
             pm2 save
             cd ..
+            printf "VITE_API_URL=http://${EC2_HOST}/api\n" > Frontend/.env
             cd Frontend
             npm ci
             npm run build
