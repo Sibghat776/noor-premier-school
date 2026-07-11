@@ -1,33 +1,26 @@
 name: Deploy to EC2
-
 on:
   push:
     branches: [main]
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-
       - name: Install & build frontend
         run: |
           cd Frontend
           npm ci
           npm run build
-
       - name: Install backend deps
         run: |
           cd Backend
           npm ci --omit=dev
-
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -36,60 +29,55 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             set -e
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
             # Clone or pull repo
-            if [ ! -d "/home/${{ secrets.EC2_USER }}/noor-school/.git" ]; then
-              git clone https://github.com/${{ github.repository }} /home/${{ secrets.EC2_USER }}/noor-school
+            if [ ! -d "/home/ec2-user/noor-school/.git" ]; then
+              git clone https://github.com/Sibghat776/noor-premier-school /home/ec2-user/noor-school
             fi
-            cd /home/${{ secrets.EC2_USER }}/noor-school
+            cd /home/ec2-user/noor-school
             git pull origin main
 
-            # Write Backend .env from GitHub secrets (never committed to repo)
-            cat > Backend/.env <<EOF
+            # Write Backend .env from GitHub secrets
+            cat > Backend/.env <<ENVEOF
             NODE_ENV=production
             PORT=5000
             FRONTEND_URL=http://${{ secrets.EC2_HOST }}
-            MYSQL_HOST=$(aws rds describe-db-instances --db-instance-identifier noor-premier-db --query "DBInstances[0].Endpoint.Address" --output text)
+            MYSQL_HOST=${{ secrets.MYSQL_HOST }}
             MYSQL_PORT=3306
             MYSQL_USER=admin
             MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
             MYSQL_DATABASE=noor_school
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             JWT_EXPIRY=7d
-            EOF
+            ENVEOF
 
-            # Backend — install prod deps and restart via PM2 ecosystem
+            # Backend
             cd Backend
             npm ci --omit=dev
-            pm2 startOrRestart ecosystem.config.js --env production
+            pm2 startOrRestart ecosystem.config.js --env production || pm2 start index.js --name noor-backend
             pm2 save
             cd ..
 
-            # Frontend — build and copy to nginx web root
-            cd Frontend
-            npm ci
-            npm run build
-            sudo cp -r dist/* /var/www/html/
-            cd ..
+            # Frontend — copy pre-built dist from runner
+            sudo cp -r Frontend/dist/* /var/www/html/
 
-            # Nginx config
+            # Nginx
             sudo cp infra/nginx/noor-premier.conf /etc/nginx/conf.d/noor-premier.conf
             sudo nginx -t
             sudo systemctl reload nginx
 
             echo "Deployment complete at $(date)"
-
       - name: Smoke test — backend health
         run: |
           sleep 10
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.EC2_HOST }}/api/health)
           if [ "$STATUS" != "200" ]; then
             echo "FAIL: /api/health returned HTTP $STATUS"
-            curl -v http://${{ secrets.EC2_HOST }}/api/health || true
             exit 1
           fi
           echo "PASS: /api/health returned 200"
-
       - name: Smoke test — frontend served
         run: |
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.EC2_HOST }}/)
