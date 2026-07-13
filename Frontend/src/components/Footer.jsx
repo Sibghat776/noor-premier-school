@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Phone } from 'lucide-react';
 import { InstagramIcon, FacebookIcon, LinkedinIcon } from './SocialIcons';
-import logoUrl from '../assets/logo.svg';
+import logoUrl from '../assets/logo.jpg';
 
 const quickLinks = [
   { label: 'Home', href: '/#home' },
@@ -46,8 +46,8 @@ export default function Footer() {
               <a href="https://linkedin.com/company/noorpremierschool" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-gray-400 hover:text-primary-400 transition-colors text-sm">
                 <LinkedinIcon size={18} /> /noorpremierschool
               </a>
-              <a href="https://wa.me/923359933339" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-gray-400 hover:text-primary-400 transition-colors text-sm">
-                <Phone size={18} /> +92 335-9933339
+              <a href="https://wa.me/923343688913" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-gray-400 hover:text-primary-400 transition-colors text-sm">
+                <Phone size={18} /> +92 3343688913
               </a>
             </div>
           </div>
