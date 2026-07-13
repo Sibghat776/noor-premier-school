@@ -66,7 +66,7 @@ resource "aws_security_group" "ec2" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [var.my_ip_cidr]
+    cidr_blocks = ["0.0.0.0/0"]  # GitHub Actions runners have dynamic IPs
   }
   ingress {
     from_port   = 80
@@ -187,4 +187,11 @@ resource "aws_cloudwatch_metric_alarm" "cpu_high" {
     InstanceId = aws_instance.app.id
   }
   tags = local.project_tag
+}
+
+# ── Elastic IP ────────────────────────────────────────────────────────────────
+resource "aws_eip" "app" {
+  domain   = "vpc"
+  instance = aws_instance.app.id
+  tags     = merge(local.project_tag, { Name = "noor-school-eip" })
 }

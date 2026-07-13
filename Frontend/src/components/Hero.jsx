@@ -2,12 +2,19 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 
+// Images ko directly import karein (Apne actual paths ke hisaab se adjust kar lein agar zaroorat ho)
+import img1 from '../assets/images/Image 1.jpeg';
+import img2 from '../assets/images/Image 2.jpeg';
+import img3 from '../assets/images/Image 3.jpeg';
+import img4 from '../assets/images/Image 4.jpeg';
+import img5 from '../assets/images/Image 5.jpeg';
+
 const slides = [
-  { bg: 'from-primary-900 to-primary-700', label: 'Nurturing Young Minds' },
-  { bg: 'from-secondary-800 to-secondary-600', label: 'Excellence in Education' },
-  { bg: 'from-primary-800 to-secondary-700', label: 'Islamic Values & Modern Learning' },
-  { bg: 'from-secondary-700 to-primary-600', label: 'Building Future Leaders' },
-  { bg: 'from-primary-700 to-primary-500', label: 'A Community of Learners' },
+  { img: img1, label: 'Nurturing Young Minds' },
+  { img: img2, label: 'Excellence in Education' },
+  { img: img3, label: 'Islamic Values & Modern Learning' },
+  { img: img4, label: 'Building Future Leaders' },
+  { img: img5, label: 'A Community of Learners' },
 ];
 
 export default function Hero() {
@@ -22,13 +29,16 @@ export default function Hero() {
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {slides.map((s, i) => (
         <img
-          src={`../assets/images/Image ${i + 1}.jpeg`}
           key={i}
-          className={`absolute inset-0 bg-gradient-to-br ${s.bg} transition-opacity duration-1000 ${i === current ? 'opacity-100' : 'opacity-0'}`}
+          src={s.img}
+          alt={`School Slide ${i + 1}`}
+          // w-full h-full aur object-cover images ko screen par properly fit karenge
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === current ? 'opacity-100 z-0' : 'opacity-0 -z-10'
+            }`}
         />
       ))}
 
-      <div className="absolute inset-0 bg-black/40" />
+      <div className="absolute inset-0 bg-black/40 z-0" />
 
       <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
         <p className="text-primary-300 text-sm font-medium tracking-widest uppercase mb-4">
@@ -53,7 +63,12 @@ export default function Hero() {
 
         <div className="flex justify-center gap-2 mt-8">
           {slides.map((_, i) => (
-            <button key={i} onClick={() => setCurrent(i)} className={`w-2 h-2 rounded-full transition-all ${i === current ? 'bg-primary-400 w-6' : 'bg-white/50'}`} />
+            <button
+              key={i}
+              onClick={() => setCurrent(i)}
+              className={`w-2 h-2 rounded-full transition-all ${i === current ? 'bg-primary-400 w-6' : 'bg-white/50'
+                }`}
+            />
           ))}
         </div>
       </div>
