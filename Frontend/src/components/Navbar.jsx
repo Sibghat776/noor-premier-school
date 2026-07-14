@@ -23,17 +23,17 @@ export default function Navbar() {
   }, []);
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-40 bg-white transition-shadow duration-300 ${scrolled ? 'shadow-md' : 'shadow-sm'}`}>
+    <nav className={`fixed top-0 left-0 right-0 z-40 bg-black transition-shadow duration-300 ${scrolled ? 'shadow-md' : 'shadow-sm'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2">
             <img src={logoUrl} alt="Noor Premier School" className="h-10 w-auto" onError={(e) => { e.target.style.display='none'; }} />
-            <span className="font-bold text-secondary-800 text-sm hidden sm:block">Noor Premier School</span>
+            <span className="font-bold text-white text-sm hidden sm:block">Noor Premier School</span>
           </Link>
 
           <div className="hidden md:flex items-center gap-6">
             {navLinks.map(l => (
-              <a key={l.label} href={l.href} className="text-secondary-600 hover:text-primary-500 font-medium text-sm transition-colors">{l.label}</a>
+              <a key={l.label} href={l.href} className="text-white hover:text-primary-500 font-medium text-sm transition-colors">{l.label}</a>
             ))}
             <Link to="/admin" className="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
               Admin Login
@@ -47,9 +47,9 @@ export default function Navbar() {
       </div>
 
       {open && (
-        <div className="md:hidden bg-white border-t border-gray-100 px-4 pb-4">
+        <div className="md:hidden bg-gray-800 border-t border-gray-100 px-4 pb-4">
           {navLinks.map(l => (
-            <a key={l.label} href={l.href} onClick={() => setOpen(false)} className="block py-2 text-secondary-600 hover:text-primary-500 font-medium">{l.label}</a>
+            <a key={l.label} href={l.href} onClick={() => setOpen(false)} className="block py-2 text-white hover:text-primary-500 font-medium">{l.label}</a>
           ))}
           <Link to="/admin" onClick={() => setOpen(false)} className="block mt-2 bg-primary-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center">
             Admin Login

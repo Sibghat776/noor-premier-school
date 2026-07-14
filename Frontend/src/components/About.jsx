@@ -1,4 +1,4 @@
-import logoUrl from '../assets/logo.svg';
+import logoUrl from '../assets/logo.jpg';
 
 export default function About() {
   return (
